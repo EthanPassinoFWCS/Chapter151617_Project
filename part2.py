@@ -3,7 +3,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 from os import path
 from os import mkdir
-import matplotlib.patches as mpatches
+import numpy as np
 
 filename = "";
 check_dates = []
@@ -90,19 +90,30 @@ with open(f"data/{filename}.csv") as f:
         highs.append(high)
         lows.append(low)
         precs.append(prec)
+date_fix = [f"{date.year}" for date in dates]
+x = np.arange(len(date_fix))
+width=0.15
 
 fig, ax = plt.subplots()
-ax.bar(dates, highs, width=30, color='r')
-ax.bar(dates, lows, width=30, color='b')
-ax.plot(dates, precs, c='yellow', alpha=0.5, linewidth=5)
+rects1 = ax.bar(x - width/2, highs, width, color='r', label="Highs (F)")
+rects2 = ax.bar(x + width/2, lows, width, color='b', label="Lows (F)")
+rects3 = ax.bar((x + width/2) + width, precs, width, color='y', label="Precipitation (Percent)")
 ax.set_ylabel("")
 ax.set_xlabel("Dates")
-fig.autofmt_xdate()
-red = mpatches.Patch(color='red', label='High Temp (F)')
-blue = mpatches.Patch(color='blue', label='Low Temp (F)')
-yellow = mpatches.Patch(color='yellow', label='Precipitation (Percent)')
-plt.legend(handles=[red, blue, yellow])
+ax.set_xticks(x)
+ax.set_xticklabels(date_fix)
+ax.legend()
+
+def autolabel(rects):
+    for rect in rects:
+        height = rect.get_height()
+        ax.annotate('{}'.format(height),
+                    xy=(rect.get_x() + rect.get_width() / 3, height),
+                    xytext=(0, 3),
+                    textcoords='offset points',
+                    ha='center', va='bottom')
+autolabel(rects1)
+autolabel(rects2)
+autolabel(rects3)
+fig.tight_layout()
 plt.show()
-
-
-
